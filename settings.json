@@ -1,0 +1,21 @@
+{
+    "ckpt_dir": "PATH",
+    "input_image_path": null,
+    "output_path": null,
+    "seed": -1,
+    "num_inference_steps": 40,
+    "num_runs": 1,
+    "num_images_per_prompt": 2,
+    "guidance_scale": 3.0,
+    "height": 416,
+    "width": 768,
+    "num_frames": 121,
+    "frame_rate": 24,
+    "bfloat16": false,
+    "prompt": "A young white man with long blonde hair looks directly into the camera. The man is serious. The background is out of focus and contains a computer monitor and airplanes. he's wearing a light suit with a black t-shirt and tie. he blinks and nods his head and looks intently into the camera. The camera pans right framing his head and shoulders. High quality professional lighting. The scene appears to be from a awards broadcast.",
+    "negative_prompt": "cropped, letterboxed, text, logo, graphics, worst quality, deformed, distorted, inconsistent motion, blurry, jittery, distorted",
+    "extend_clip": true,
+    "restart_first_frame": false,
+    "upscale_clip": true,
+    "override_filename": "serious_young_white_man_long_wavy_blonde"
+}
