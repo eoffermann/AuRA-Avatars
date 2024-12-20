@@ -167,6 +167,7 @@ video_output_*.mp4
 # Models and Output
 PATH/
 outputs/
+gfpgan/weights
 
 # Temporary settings storage
 settings.json
