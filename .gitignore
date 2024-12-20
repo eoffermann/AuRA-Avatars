@@ -167,3 +167,6 @@ video_output_*.mp4
 # Models and Output
 PATH/
 outputs/
+
+# Temporary settings storage
+settings.json
