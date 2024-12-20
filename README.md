@@ -56,7 +56,7 @@ The **AuRA Avatar Generator** is a companion tool designed to enhance the capabi
 1. **Clone the Repository**:
    ```bash
    git clone --recurse-submodules https://github.com/eoffermann/AuRA-Avatars.git
-   cd AuRA_Avatars
+   cd AuRA-Avatars
    ```
 
 2. **Install Dependencies**:
