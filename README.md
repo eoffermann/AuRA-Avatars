@@ -14,6 +14,8 @@ The text to video functionality in this repository is based on the LTX-Video pro
 
 The **AuRA Avatar Generator** is a companion tool designed to enhance the capabilities of the **AuRA** project and the **IntellectCascade** framework. It allows the creation of highly customizable avatars and avatar-driven video presentations tailored to diverse audiences. This tool serves as a dynamic interface for delivering research insights, improving engagement, and bridging the communication gap in healthcare and other fields.
 
+| <a href="https://www.youtube.com/watch?v=mR_ErvG3Qp0"><img src="AuRA_Holidays.gif" alt="A video showcasing the variety of base avatars this tool can produce" style="width:2048px;"></a> | <a href="https://www.youtube.com/watch?v=mR_ErvG3Qp0"><img src="AuRA_Holidays_B.gif" alt="A video showcasing the variety of base avatars this tool can produce" style="width:2048px;"></a> | <a href="https://www.youtube.com/watch?v=mR_ErvG3Qp0"><img src="AuRA_Holidays_C.gif" alt="A video showcasing the variety of base avatars this tool can produce" style="width:2048px;"></a> |
+|---|---|---|
 ---
 
 ### Features
