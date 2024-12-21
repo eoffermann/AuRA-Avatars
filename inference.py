@@ -463,9 +463,6 @@ def run_pipeline(
     """
     global g_vae, g_unet, g_scheduler, g_patchifier, g_text_encoder, g_tokenizer, g_pipeline
 
-    print(f"inference.run_pipeline: override_filename: {override_filename}")
-
-
     logger = logging.get_logger(__name__)
     logger.warning("Running pipeline with provided parameters.")
 
@@ -557,7 +554,6 @@ def run_pipeline(
 
             generator = torch.Generator(device="cuda" if torch.cuda.is_available() else "cpu").manual_seed(seed)
 
-            print(f"Avatar prompt: {sample['prompt']}")
             images = g_pipeline(
                 num_inference_steps=num_inference_steps,
                 num_images_per_prompt=1,

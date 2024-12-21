@@ -234,8 +234,6 @@ def gradio_interface(
                                object_b=object_b, clothing_tone=clothing_tone, clothing_type=clothing_type,
                                shirt_color=shirt_color, shirt_type=shirt_type, accessory=accessory, broadcast_type=broadcast_type,
                                emotion=emotion, camera=camera, avatar_action=avatar_actions[ea])
-        print(args['prompts'][ea])
-        print('---')
 
     # Save current settings
     save_settings(args)
@@ -250,10 +248,8 @@ def gradio_interface(
 def get_value_or_random(key, value):
     if (value=="Random"):
         r=random.choice(options[key])
-        print(f"options ({options[key]}): {r}")
         return r
     else:
-        print(f"value: ({value})")
         return value
 
 def bulk_gradio_interface(
@@ -335,15 +331,11 @@ def bulk_gradio_interface(
             "override_filename": f"{bulk_emotion}_{bulk_age}_{bulk_race}_{bulk_gender}_{bulk_hair_length}_{bulk_hair_texture}_{bulk_hair_color}"
         }
 
-        # Save current settings
-        pprint.pprint(args, indent=4)
-    
         # Run the pipeline
         try:
             inference.run_pipeline(**args)
         except Exception as e:
             errors+=1
-        print("="*80)
 
     if (errors>0):
         return "Avatar generation complete with errors - check log for details"
