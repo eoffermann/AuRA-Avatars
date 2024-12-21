@@ -174,15 +174,16 @@
     "emotion": [
         "authoritative",
         "crying",
+        "smiling",
         "excited",
         "happy",
-        "laughing",
         "sad",
         "serious",
         "terrified",
         "worried"
     ],
     "camera": [
+        "The camera is stationary and locked off",
         "The camera cranes down",
         "The camera cranes up",
         "The camera dollies in",
@@ -190,7 +191,24 @@
         "The camera pans left",
         "The camera pans right",
         "The camera tracks left",
-        "The camera tracks right",
-        "The camera is stationary and locked off"
-    ]
+        "The camera tracks right"
+    ],
+    "avatar_actions": [
+        "stares directly into the camera",
+        "stares into the distance",
+        "stares off camera",
+        "stares seriously",
+        "looks slightly up",
+        "looks slightly down",
+        "looks slightly left",
+        "looks slightly right",
+        "looks into the camera",
+        "glances to the side",
+        "glances upwards",
+        "laughs",
+        "sighs",
+        "takes a deep breath",
+        "shrugs"
+    ],
+    "negative_prompt": "hands, gesturing, fingers, cropped, letterboxed, text, logo, graphics, worst quality, deformed, distorted, inconsistent motion, blurry, jittery, distorted"
 }
