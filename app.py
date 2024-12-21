@@ -73,7 +73,8 @@ def load_options():
 
 def build_prompt(age="middle aged", race="generic", gender="female", hair_length="short", hair_texture="curly", 
                  hair_color="dark", object_a="lamp", object_b="plant", clothing_tone="dark", clothing_type="suit", 
-                 shirt_color="white", shirt_type="dress shirt", accessory="tie", broadcast_type="news", emotion="serious", camera="The camera is stationary and locked off"):
+                 shirt_color="white", shirt_type="dress shirt", accessory="tie", broadcast_type="news", emotion="serious",
+                 camera="The camera is stationary and locked off", avatar_action="looks directly into the camera"):
     # Derive pronouns from gender. Ideally, we'd have something more nuanced to support 
     # more ambiguously gendered / androgynous avatars but that's poorly represented in
     # the datasets and wildly hit-or-miss for generation
@@ -88,7 +89,7 @@ def build_prompt(age="middle aged", race="generic", gender="female", hair_length
     if (hair_length=="shaved") & (hair_texture=="bald"):
         hair_prompt=f"A {age} {race} {gender} with a {hair_length} head"
 
-    gen_prompt=f"{hair_prompt} looks directly into the camera. The man is {emotion}. The background is out of focus and contains {object_a} and {object_b}. {pronoun}'s wearing a {clothing_tone} {clothing_type} with a {shirt_color} {shirt_type} and {accessory}. {pronoun} blinks and nods {poss_pronoun} head and looks intently into the camera. {camera} framing {poss_pronoun} head and shoulders. High quality professional lighting. The scene appears to be from a {broadcast_type} broadcast."
+    gen_prompt=f"{hair_prompt} {avatar_action}. The {gender} is {emotion}. The background is out of focus and contains {object_a} and {object_b}. {pronoun}'s wearing a {clothing_tone} {clothing_type} with a {shirt_color} {shirt_type} and {accessory}. {pronoun} blinks and nods {poss_pronoun} head and {avatar_action}. {camera} framing {poss_pronoun} head and shoulders. High quality professional lighting. The scene appears to be from a {broadcast_type} broadcast."
     return gen_prompt
 
 def custom_sort_key(item: str) -> str:
@@ -152,6 +153,13 @@ def display_file(image_path):
         # Hide both if unsupported type
         return gr.update(visible=False), gr.update(visible=False)
 
+# Callback function to manage visibility
+def update_visibility(num_images_per_prompt):
+    visibility_updates = {}
+    for check in range(5):
+        visibility_updates[check] = gr.update(visible=(check < num_images_per_prompt))
+    return tuple(visibility_updates.values())
+
 def gradio_interface(
     seed,
     num_inference_steps,
@@ -180,14 +188,18 @@ def gradio_interface(
     broadcast_type,
     emotion,
     camera,
-    input_image_path=None
+    input_image_path=None,
+    aa0=None,
+    aa1=None,
+    aa2=None,
+    aa3=None,
+    aa4=None
 ) -> str:
     """
     Gradio interface wrapper for the video generation pipeline.
     """
-    print(f"gradio interface iip: {input_image_path}")
     input_image_path=extract_first_frame_as_png(input_image_path)
-    print(f"after iip: {input_image_path}")
+    avatar_actions={0:aa0, 1:aa1, 2:aa2, 3:aa3, 4:aa4}
     # Prepare arguments as a dictionary
     args = {
         "ckpt_dir": "PATH",
@@ -208,12 +220,22 @@ def gradio_interface(
                                object_b=object_b, clothing_tone=clothing_tone, clothing_type=clothing_type,
                                shirt_color=shirt_color, shirt_type=shirt_type, accessory=accessory, broadcast_type=broadcast_type,
                                emotion=emotion, camera=camera),
-        "negative_prompt": "cropped, letterboxed, text, logo, graphics, worst quality, deformed, distorted, inconsistent motion, blurry, jittery, distorted",
+        "negative_prompt": options['negative_prompt'],
         "extend_clip": extend_clip,
         "restart_first_frame": restart_first_frame,
         "upscale_clip": upscale_clip,
         "override_filename": f"{emotion}_{age}_{race}_{gender}_{hair_length}_{hair_texture}_{hair_color}"
     }
+
+    args['prompts']={}
+    for ea in avatar_actions:
+        args['prompts'][ea]=build_prompt(age=age, race=race, gender=gender, hair_length=hair_length, 
+                               hair_texture=hair_texture, hair_color=hair_color, object_a=object_a,
+                               object_b=object_b, clothing_tone=clothing_tone, clothing_type=clothing_type,
+                               shirt_color=shirt_color, shirt_type=shirt_type, accessory=accessory, broadcast_type=broadcast_type,
+                               emotion=emotion, camera=camera, avatar_action=avatar_actions[ea])
+        print(args['prompts'][ea])
+        print('---')
 
     # Save current settings
     save_settings(args)
@@ -261,7 +283,8 @@ def bulk_gradio_interface(
     broadcast_type,
     emotion,
     camera,
-    input_image_path=None
+    input_image_path=None,
+    avatar_actions={}
 ) -> str:
     """
     Bulk Gradio interface wrapper for the video generation pipeline.
@@ -386,16 +409,16 @@ with gr.Blocks(title="AuRA Avatar Generator", css=css, theme=theme) as app:
                             visible=False
                         )
                         num_runs = gr.Slider(
-                            label="Number of runs to generate", 
+                            label="Number of sequences to generate", 
                             minimum=1, 
                             maximum=100, 
                             value=default_settings.get("num_runs", 1), 
                             step=1
                         )
                         num_images_per_prompt = gr.Slider(
-                            label="Number of avatar videos per run", 
+                            label="Number of avatar videos per sequence", 
                             minimum=1, 
-                            maximum=100, 
+                            maximum=5, 
                             value=default_settings.get("num_images_per_prompt", 1), 
                             step=1
                         )
@@ -431,6 +454,18 @@ with gr.Blocks(title="AuRA Avatar Generator", css=css, theme=theme) as app:
                             value=default_settings.get("frame_rate", 24)
                         )
 
+                    with gr.Blocks():
+                        avatar_actions={}
+                        row_visibility = {}
+                        for check in range(5):
+                            #with gr.Row(visible=(check < 1)) as row:  # Initially visible for the first row only
+                            with gr.Row() as row:  # Initially visible for the first row only
+                                row_visibility[check] = row
+                                avatar_actions[check] = gr.Dropdown(
+                                    choices=options['avatar_actions'], 
+                                    label="Avatar action", 
+                                    value=random.choice(options['avatar_actions']))
+
                     with gr.Row():
                         extendClip = gr.Checkbox(
                             label="Create extended clip series", 
@@ -459,6 +494,12 @@ with gr.Blocks(title="AuRA Avatar Generator", css=css, theme=theme) as app:
 
                     generate_button = gr.Button("Generate Avatars")
             output_message = gr.Textbox(label="Status", value="Ready")
+
+            num_images_per_prompt.change(
+                fn=update_visibility,
+                inputs=num_images_per_prompt,
+                outputs=[row_visibility[check] for check in range(5)]
+            )
 
             generate_button.click(
                 gradio_interface,
@@ -490,7 +531,12 @@ with gr.Blocks(title="AuRA Avatar Generator", css=css, theme=theme) as app:
                     broadcast_type,
                     emotion,
                     camera,
-                    input_image_path
+                    input_image_path,
+                    avatar_actions[0],
+                    avatar_actions[1],
+                    avatar_actions[2],
+                    avatar_actions[3],
+                    avatar_actions[4]
                 ],
                 outputs=output_message,
             )
@@ -532,16 +578,16 @@ with gr.Blocks(title="AuRA Avatar Generator", css=css, theme=theme) as app:
                             visible=False
                         )
                         bulk_num_runs = gr.Slider(
-                            label="Number of runs to generate", 
+                            label="Number of sequences to generate", 
                             minimum=1, 
                             maximum=100, 
                             value=default_settings.get("num_runs", 1), 
                             step=1
                         )
                         bulk_num_images_per_prompt = gr.Slider(
-                            label="Number of avatar videos per run", 
+                            label="Number of avatar videos per sequence", 
                             minimum=1, 
-                            maximum=100, 
+                            maximum=5, 
                             value=default_settings.get("num_images_per_prompt", 1), 
                             step=1
                         )
@@ -577,6 +623,15 @@ with gr.Blocks(title="AuRA Avatar Generator", css=css, theme=theme) as app:
                             value=default_settings.get("frame_rate", 24)
                         )
 
+                    with gr.Blocks():
+                        bulk_avatar_actions={}
+                        for check in range(0,5):
+                            with gr.Row():
+                                bulk_avatar_actions[check] = gr.Dropdown(
+                                    choices=options['avatar_actions'], 
+                                    label="Avatar action", 
+                                    value=random.choice(options['avatar_actions']))
+                                
                     with gr.Row():
                         bulk_extendClip = gr.Checkbox(
                             label="Create extended clip series", 

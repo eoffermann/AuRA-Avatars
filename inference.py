@@ -405,6 +405,7 @@ def run_pipeline(
     restart_first_frame: bool = False,
     override_filename: str = None,
     upscale_clip: bool = False,
+    prompts={}
 ) -> None:
     """
     Run the video generation pipeline and save the results.
@@ -538,7 +539,9 @@ def run_pipeline(
 
         video_sequence=[]
 
+        avatar_action=-1
         for seed in range(seed, seed+num_images_per_prompt):
+            avatar_action+=1
             seed_everything(seed)
 
             sample = {
@@ -549,8 +552,12 @@ def run_pipeline(
                 "media_items": media_items,
             }
 
+            if avatar_action in prompts:
+                sample['prompt']=prompts[avatar_action]
+
             generator = torch.Generator(device="cuda" if torch.cuda.is_available() else "cpu").manual_seed(seed)
 
+            print(f"Avatar prompt: {sample['prompt']}")
             images = g_pipeline(
                 num_inference_steps=num_inference_steps,
                 num_images_per_prompt=1,
@@ -613,6 +620,8 @@ def run_pipeline(
                     )
 
                     # Write video
+                    divider=("="*80+"\n")
+                    print(f"{divider}Writing video")
                     with imageio.get_writer(output_filename, fps=fps) as video:
                         for frame in video_np:
                             video.append_data(frame)
@@ -639,6 +648,7 @@ def run_pipeline(
         if (video_sequence!=[]):
             joined_video=join_videos(video_sequence=video_sequence)
             if (upscale_clip):
+                print(f"{divider}Upscaling video")
                 temp_images.append(joined_video)
                 final_video=upscale_video(joined_video)
             else:
